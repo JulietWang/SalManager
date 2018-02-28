@@ -1,0 +1,4 @@
+jdbc.username=guigu
+jdbc.password=guigu
+jdbc.url=jdbc:oracle:thin:@localhost:1521:ORCL
+jdbc.driver=oracle.jdbc.driver.OracleDriver

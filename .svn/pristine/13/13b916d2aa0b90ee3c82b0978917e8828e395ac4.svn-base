@@ -1,0 +1,258 @@
+package com.guigu.salmanager.ui;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.jb2011.lnf.beautyeye.ch3_button.BEButtonUI;
+
+import com.guigu.salmanager.model.Category;
+import com.guigu.salmanager.model.Customer;
+import com.guigu.salmanager.model.Goods;
+import com.guigu.salmanager.model.SaleOrder;
+import com.guigu.salmanager.model.Salesman;
+import com.guigu.salmanager.service.CategoryService;
+import com.guigu.salmanager.service.CustomerService;
+import com.guigu.salmanager.service.GoodsService;
+import com.guigu.salmanager.service.SaleOrderService;
+import com.guigu.salmanager.service.SalesmanService;
+import com.guigu.salmanager.service.UsersService;
+import com.guigu.salmanager.service.WarehouseService;
+import com.guigu.salmanager.service.impl.CategoryServiceImpl;
+import com.guigu.salmanager.service.impl.CustomerServiceImpl;
+import com.guigu.salmanager.service.impl.GoodsServiceImpl;
+import com.guigu.salmanager.service.impl.SaleOrderServiceImpl;
+import com.guigu.salmanager.service.impl.SalesmanServiceImpl;
+import com.guigu.salmanager.service.impl.UsersServiceImpl;
+import com.guigu.salmanager.service.impl.WarehouseServiceImpl;
+import com.guigu.salmanager.utils.Item;
+import com.guigu.salmanager.utils.MyFont;
+
+public class AddSaleOrderJFrame extends JFrame implements MouseListener{
+	JPanel backgroundPanel, labelPanel, contentPanel, buttonPanel;
+	JLabel label_name, label_amount,label_warehouse, label_category,label_saleman,label_customer;
+	JTextField amount;
+	JComboBox goods,saleman,customer;
+	JButton button_add;
+	private CategoryService categoryService = new CategoryServiceImpl();
+	private WarehouseService warehouseService = new WarehouseServiceImpl();
+	private GoodsService goodsService =new GoodsServiceImpl();
+	private SaleOrderService sOrderService=new SaleOrderServiceImpl();
+	private UsersService uService=new UsersServiceImpl();
+	private SalesmanService salesManService=new SalesmanServiceImpl();
+	private CustomerService customerService=new CustomerServiceImpl();
+	private SaleOrderService saleOrderService=new SaleOrderServiceImpl();
+	
+	int result;
+	// 得到屏幕的宽度和高度
+	final static int width = Toolkit.getDefaultToolkit().getScreenSize().width;
+	final static int height = Toolkit.getDefaultToolkit().getScreenSize().height;
+	SaleOrderJPanel parentPanel;
+	public AddSaleOrderJFrame(SaleOrderJPanel parentPanel) {
+		this.parentPanel=parentPanel;
+		initBackgroundPanel();
+		this.add(backgroundPanel);
+		this.setTitle("添加销售单");
+		this.setSize(640, 360);
+		this.setVisible(true);
+		this.setLocationRelativeTo(null);
+		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		
+	}
+	
+
+	private void initBackgroundPanel() {
+		backgroundPanel=new JPanel(new BorderLayout());
+		initContentPanel();
+		initLablePanel();
+		initButtonPanel();
+
+		backgroundPanel.add(labelPanel, "North");
+		backgroundPanel.add(contentPanel, "Center");
+		backgroundPanel.add(buttonPanel, "South");
+	}
+
+
+
+
+
+	private void initButtonPanel() {
+		buttonPanel = new JPanel();
+		button_add = new JButton("保存");
+		button_add.setUI(new BEButtonUI().setNormalColor(BEButtonUI.NormalColor.lightBlue));
+		button_add.setForeground(Color.white);
+		button_add.setFont(MyFont.Static);
+		button_add.addMouseListener(this);
+		buttonPanel.add(button_add);
+		
+	}
+
+
+
+
+
+	private void initLablePanel() {
+		
+		
+		labelPanel = new JPanel();
+		JLabel title = new JLabel("销售单信息");
+		title.setFont(MyFont.Static);
+		labelPanel.add(title);
+		
+	}
+	
+
+	private void initContentPanel() {
+		contentPanel = new JPanel(new GridLayout(4, 2));
+		label_name = new JLabel("商品名称", JLabel.CENTER);
+		label_amount = new JLabel("数量", JLabel.CENTER);
+		
+		label_saleman=new JLabel("销售员",JLabel.CENTER);
+		label_customer=new JLabel("顾客",JLabel.CENTER);
+		
+		goods = new JComboBox();
+		amount = new JTextField();
+		saleman=new JComboBox();
+		customer=new JComboBox();
+		
+		List<Goods> list_goods=null;
+		try {
+			list_goods=goodsService.findAll();
+			if(list_goods!=null) {
+				for (int i = 0; i < list_goods.size(); i++) {
+					String id = list_goods.get(i).getGoods_Id();
+					String name = list_goods.get(i).getName();
+					goods.addItem(new Item(id, name));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<Salesman> list_saleman=null;
+		try {
+			list_saleman=salesManService.findAll();
+			if(list_saleman!=null) {
+				for (int i = 0; i < list_saleman.size(); i++) {
+					String id = list_saleman.get(i).getSalesman_Id();
+					String name = list_saleman.get(i).getSalesmanName();
+					saleman.addItem(new Item(id, name));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		List<Customer> list_customer=null;
+		try {
+			list_customer=customerService.findAll();
+			if(list_customer!=null) {
+				for (int i = 0; i < list_customer.size(); i++) {
+					String id = list_customer.get(i).getCustomer_Id();
+					String name = list_customer.get(i).getCustomerName();
+					customer.addItem(new Item(id, name));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		contentPanel.add(label_name);
+		contentPanel.add(goods);
+		contentPanel.add(label_amount);
+		contentPanel.add(amount);
+		contentPanel.add(label_saleman);
+		contentPanel.add(saleman);
+		contentPanel.add(label_customer);
+		contentPanel.add(customer);
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getSource() == button_add) {
+			String amount_string=amount.getText().trim();
+			 if(amount_string.isEmpty()) {
+				JOptionPane.showMessageDialog(null, "请输入商品数量");
+			}else {
+				//得到选择的仓库id和分类id
+				int amount_int=Integer.valueOf(amount_string);
+				String goods_id=((Item)goods.getSelectedItem()).getKey();
+				String customer_id=((Item)customer.getSelectedItem()).getKey();
+				String saleman_id=((Item)saleman.getSelectedItem()).getKey();
+				String warehouse_id=null;
+				String category_id=null;
+				try {
+					Goods g1=goodsService.find(goods_id);
+					warehouse_id=g1.getWarehouse_Id();
+					category_id=g1.getCategory_Id();
+					
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+				String id=UUID.randomUUID().toString().replace("-", "");
+				Date date1 =new Date();
+				SimpleDateFormat sFormat=new SimpleDateFormat("yyyyMMddhhmmss");
+				String bill_no=sFormat.format(date1);
+				SaleOrder sOrder=new SaleOrder(id, bill_no,saleman_id, category_id, warehouse_id, amount_string, goods_id,customer_id, 0);
+				System.out.println(sOrder);
+				
+				try {
+					 result=sOrderService.saveSaleOrder(sOrder);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				if(result>0) {
+					JOptionPane.showMessageDialog(null, "添加成功");
+					this.setVisible(false);
+					try {
+						parentPanel.vector=saleOrderService.findAllSaleOrder();
+						parentPanel.refreshTablePanel();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+			
+			
+		}
+	}
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
